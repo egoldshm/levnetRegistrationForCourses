@@ -110,5 +110,6 @@ def addCourse(username, password, courseId, groupNumbers):
         
         print('done')
 
-#הרשמה להסתברות
-addCourse('ardarsha', '--CENSORED--', 120701, [1,11])
+if __name__ == "__main__":
+	#הרשמה להסתברות
+	addCourse('ardarsha', '--CENSORED--', 120701, [1,11])
