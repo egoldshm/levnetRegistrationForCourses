@@ -1,29 +1,20 @@
 import json
 import requests
 
-######################
-
-######################
+#############################################################
+###                                                       ###
+###                                                       ###
+### This Code Wrote By Ariel Darshan And Eytan Goldshmidt ###
+###                                                       ###
+###             All rights reserved (C)                   ###
+###                                                       ###
+###                                                       ###
+#############################################################
 
 
 #proxy = 'https://localhost:8080'
 
 DebugMode = False
-
-year = 5780
-semester = 1
-'''
-[V]POST    /api/home/login.ashx?action=TryLogin
-[V]GET:    /Student/Schedule/Start.aspx
-[V]POST    /api/student/buildSchedule.ashx?action=LoadDataForBuildScheduleStart
-[X]GET:    /api/student/status.ashx?action=GetBlockingReasons
-[V]POST    /api/student/buildSchedule.ashx?action=SelectSemesterForBuildSchedule
-[V]GET:    /Student/Schedule/CoursesScheduleNew.aspx
-[V]POST    /api/student/buildSchedule.ashx?action=LoadData
-[V]POST    /api/student/buildSchedule.ashx?action=LoadCoursesForTrack
-[V]POST    /api/student/buildSchedule.ashx?action=LoadCoursesForProgram
-[V]POST    /api/student/buildSchedule.ashx?action=SaveGroupsSelection
-'''
 
 headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
 
@@ -60,12 +51,18 @@ def toJson(x):
     return json.loads(x.content)
 
 def getIdOfCourse(json,courseId):
-    return list(map(lambda j: j["programMemberId"], filter(lambda i: i["parentCourseNumber"] == courseId, toJson(json)["coursesForTrack"])))[0]
+    courseWithRightId = list(filter(lambda i: i["parentCourseNumber"] == courseId, toJson(json)["coursesForTrack"]))
+    if len(courseWithRightId) == 0:
+        return -1
+    return courseWithRightId[0]["programMemberId"]
 
 def getIdOfGroups(json, groupNumbers):
     groups = toJson(json)["coursesForProgram"][0]["groups"]
     id = toJson(json)["coursesForProgram"][0]["id"]
-    ids = list(map(lambda j: j["id"], filter(lambda i: i["groupNumber"] in groupNumbers, groups)))
+    courseWithRightId = list(filter(lambda i: i["groupNumber"] in groupNumbers, groups))
+    if len(courseWithRightId) != len(groupNumbers):
+        return -1
+    ids = list(map(lambda j: j["id"], courseWithRightId))
     return {"actualCourseId":id,"selectedGroups":ids}
     
 def GET(session, url):
@@ -87,29 +84,44 @@ def addCourse(username, password, courseId, groupNumbers):
         
         GET(s, ScheduleStart)
         
-        POST(s, BuildScheduleStart, data = { 'username' : username, 'password' : password })
+        r = POST(s, BuildScheduleStart, data = { 'username' : username, 'password' : password })
+        whatOpen = toJson(r)["semestersScheduleCreation"]
+        if whatOpen == []:
+            return "CLOSE"
+        
+        year = whatOpen[0]["academicYearId"]
+        semester = whatOpen[0]["semesterId"]
+        print(f"open: year: {year}. semester: {semester}")
         
         POST(s, SelectSemesterForBuildSchedule, data = {"academicYear":year,"semester":semester})
         
         GET(s, CoursesNew)
         
-        POST(s, CoursesScheduleNew, data = { 'username' : username, 'password' : password })
+        r = POST(s, CoursesScheduleNew, data = { 'username' : username, 'password' : password })
+        tracks = toJson(r)["tracks"]
+        for i in tracks:
+            r = POST(s, LoadCoursesForTrack, data = {"selectedTrack": i["id"]})
         
-        r = POST(s, LoadCoursesForTrack, data = {"selectedTrack":33})
-        
-        id = getIdOfCourse(r,courseId)
-        r = POST(s, LoadCoursesForProgram, data = {"programMemberId":id})
+            id = getIdOfCourse(r,courseId)
+            if id == -1:
+                continue
 
-        idOfGroups = getIdOfGroups(r,groupNumbers)
-        
-        print(f"Register to: {idOfGroups}")#Until Now - Work fine.
-        
-        POST(s, SaveGroupsSelection, data = idOfGroups)#problem here
-        
-        POST(s, LoadRegWarnings, data = '')#Should to finish
-        
-        print('done')
+            r = POST(s, LoadCoursesForProgram, data = {"programMemberId":id})
 
-if __name__ == "__main__":
-	#הרשמה להסתברות
-	addCourse('ardarsha', '--CENSORED--', 120701, [1,11])
+            idOfGroups = getIdOfGroups(r,groupNumbers)
+            if idOfGroups == -1:
+                continue
+            
+
+            print(f"Register to: {idOfGroups}")#Until Now - Work fine.
+        
+            POST(s, SaveGroupsSelection, data = idOfGroups)#problem here
+        
+            POST(s, LoadRegWarnings, data = '')#Should to finish
+        
+            return "Done"
+
+        return "Not Found"
+
+#הרשמה להסתברות
+print(addCourse('egoldshm', '----------', 120701, [1,11]))
