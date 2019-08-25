@@ -1,15 +1,15 @@
 import json
 import requests
 
-#############################################################
-###                                                       ###
-###                                                       ###
-### This Code Wrote By Ariel Darshan And Eytan Goldshmidt ###
-###                                                       ###
-###             All rights reserved (C)                   ###
-###                                                       ###
-###                                                       ###
-#############################################################
+###############################################################
+###                                                         ###
+###                                                         ###
+### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
+###                                                         ###
+###             All rights reserved (C)                     ###
+###                                                         ###
+###                                                         ###
+###############################################################
 
 
 #proxy = 'https://localhost:8080'
@@ -123,5 +123,6 @@ def addCourse(username, password, courseId, groupNumbers):
 
         return "Not Found"
 
-#הרשמה להסתברות
-print(addCourse('egoldshm', '----------', 120701, [1,11]))
+if __name__ == '__main__':
+    #הרשמה להסתברות
+    print(addCourse('egoldshm', '----------', 120701, [1,11]))
