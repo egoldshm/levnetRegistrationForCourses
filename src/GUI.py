@@ -9,7 +9,6 @@ def login():
 	result = AddCourse.addCourse(username, password, courseId, groupNumbers)
 	resultText.set(result)
 
-
 def main():
 	global usernameInput
 	global passwordInput

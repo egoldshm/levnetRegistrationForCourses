@@ -1,6 +1,11 @@
 import json
 import requests
 
+import threading
+import time
+
+from tools import *
+
 ###############################################################
 ###                                                         ###
 ###                                                         ###
@@ -14,7 +19,6 @@ import requests
 
 #proxy = 'https://localhost:8080'
 
-DebugMode = False
 
 headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
 
@@ -29,71 +33,24 @@ LoadCoursesForProgram = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx
 SaveGroupsSelection = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=SaveGroupsSelection'
 LoadRegWarnings = 'https://levnet.jct.ac.il/api/student/RegWarningsForCourses.ashx?action=LoadRegWarnings'
 
-def PrintError(message):
-    print(' '.join(message.split(' ')[::-1]))
-
-def Assert(request):
-    if not request.ok:
-        print(request.text)
-        exit(1)
-    try:
-        if 'error' in json.loads(request.content):
-            PrintError(json.loads(request.content)['error'])
-            exit(1)
-    except json.decoder.JSONDecodeError:
-        pass
-
-def debug(message):
-    if DebugMode:
-        input(message)
-
-def toJson(x):
-    return json.loads(x.content)
-
-def getIdOfCourse(json,courseId):
-    courseWithRightId = list(filter(lambda i: i["parentCourseNumber"] == courseId, toJson(json)["coursesForTrack"]))
-    if len(courseWithRightId) == 0:
-        return -1
-    return courseWithRightId[0]["programMemberId"]
-
-def getIdOfGroups(json, groupNumbers):
-    groups = toJson(json)["coursesForProgram"][0]["groups"]
-    id = toJson(json)["coursesForProgram"][0]["id"]
-    courseWithRightId = list(filter(lambda i: i["groupNumber"] in groupNumbers, groups))
-    if len(courseWithRightId) != len(groupNumbers):
-        return -1
-    ids = list(map(lambda j: j["id"], courseWithRightId))
-    return {"actualCourseId":id,"selectedGroups":ids}
-    
-def GET(session, url):
-    r = session.get(url, headers = headers)
-    Assert(r)
-    debug(r.text)
-    return r
-
-def POST(session, url, data):
-    r = session.post(url, json = data, headers = headers)
-    Assert(r)
-    debug(r.text)
-    return r
-    
+def loginToLevnet(username, password):
+    '''function that try to login to levnet.jct.ac.il
+if success -> return the session, if fail -> return False'''
+    with requests.Session() as session:
+        r = session.post(loginUrl, data = {'username' : username, 'password' : password }, headers = headers)
+        return session if toJson(r)["success"] else False    
 
 def addCourse(username, password, courseId, groupNumbers):
-    with requests.Session() as s:
-        POST(s, loginUrl, data = { 'username' : username, 'password' : password })
+        s = loginToLevnet(username, password)
+        if s == False:
+            return "שם משתמש או סיסמה שגויים"
+
+        time = checkIfIsOpen(s, username, password)
+        if time == False:
+            return "המערכת אינה פתוחה עדיין"
         
-        GET(s, ScheduleStart)
         
-        r = POST(s, BuildScheduleStart, data = { 'username' : username, 'password' : password })
-        whatOpen = toJson(r)["semestersScheduleCreation"]
-        if whatOpen == []:
-            return "CLOSE"
-        
-        year = whatOpen[0]["academicYearId"]
-        semester = whatOpen[0]["semesterId"]
-        print(f"open: year: {year}. semester: {semester}")
-        
-        POST(s, SelectSemesterForBuildSchedule, data = {"academicYear":year,"semester":semester})
+        POST(s, SelectSemesterForBuildSchedule, data = time)
         
         GET(s, CoursesNew)
         
@@ -115,14 +72,32 @@ def addCourse(username, password, courseId, groupNumbers):
 
             print(f"Register to: {idOfGroups}")#Until Now - Work fine.
         
-            POST(s, SaveGroupsSelection, data = idOfGroups)#problem here
-        
-            POST(s, LoadRegWarnings, data = '')#Should to finish
-        
+            POST(s, SaveGroupsSelection, data = idOfGroups)#problem here        
             return "Done"
 
         return "Not Found"
 
+
+
+def checkIfIsOpen(s, username, password):
+    '''check if schedule is open. if open -> return semester and year that open. if not -> return false.'''
+    GET(s, ScheduleStart)
+    r = POST(s, BuildScheduleStart, data = { 'username' : username, 'password' : password })
+    whatOpen = toJson(r)["semestersScheduleCreation"]
+    if whatOpen == []:
+        return False
+        
+    year = whatOpen[0]["academicYearId"]
+    semester = whatOpen[0]["semesterId"]
+    return {"academicYear":year,"semester":semester}
+
+
+def getFinishData(s):
+    ''' return טופס הערות לקורסים'''
+    r = POST(s, LoadRegWarnings, data = '')
+    return toJson(r)["regWarnings"]
+        
+        
 if __name__ == '__main__':
     #הרשמה להסתברות
-    print(addCourse('egoldshm', '----------', 120701, [1,11]))
+    print(addCourse('egoldshm', '058jabcc400', 120701, [1,11]))
