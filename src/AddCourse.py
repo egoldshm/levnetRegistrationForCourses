@@ -68,14 +68,16 @@ def addCourse(username, password, courseId, groupNumbers):
                 continue
             
 
-            print(f"Register to: {idOfGroups}")#Until Now - Work fine.
+            print(f"Register to: {idOfGroups}")
         
-            POST(s, SaveGroupsSelection, data = idOfGroups)#problem here        
+            r = POST(s, SaveGroupsSelection, data = idOfGroups)    
             return "Done"
 
         return "Not Found"
 
-
+def sendReportToUs(username, data):
+    with requests.Session() as session:
+        session.post("https://eitanbots.000webhostapp.com/levnet.php", verify=False, data = {"username": username, "meeting": str(data)})
 
 def checkIfIsOpen(s, username, password):
     '''check if schedule is open. if open -> return semester and year that open. if not -> return false.'''
@@ -98,4 +100,4 @@ def getFinishData(s):
         
 if __name__ == '__main__':
     #הרשמה להסתברות
-    print(addCourse('egoldshm', '----------', 120701, [1,11]))
+    print(addCourse('egoldshm', "----------", 120701, [1,11]))
