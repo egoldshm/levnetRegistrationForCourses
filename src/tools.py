@@ -1,6 +1,9 @@
 import requests
 import json
 
+headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
+
+
 DebugMode = False
 
 
@@ -27,14 +30,14 @@ def toJson(x):
 
 def GET(session, url):
     '''send GET request to url and do few checks'''
-    r = session.get(url, headers = headers)
+    r = session.get(url, headers = headers, verify = False)
     Assert(r)
     debug(r.text)
     return r
 
 def POST(session, url, data):
     '''send a POST request to url with data and do few checks'''
-    r = session.post(url, json = data, headers = headers)
+    r = session.post(url, json = data,  headers = headers, verify = False)
     Assert(r)
     debug(r.text)
     return r

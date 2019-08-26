@@ -20,8 +20,6 @@ from tools import *
 #proxy = 'https://localhost:8080'
 
 
-headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
-
 loginUrl = 'https://levnet.jct.ac.il/api/home/login.ashx?action=TryLogin'
 ScheduleStart = 'https://levnet.jct.ac.il/Student/Schedule/Start.aspx'
 BuildScheduleStart = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadDataForBuildScheduleStart'
@@ -37,7 +35,7 @@ def loginToLevnet(username, password):
     '''function that try to login to levnet.jct.ac.il
 if success -> return the session, if fail -> return False'''
     with requests.Session() as session:
-        r = session.post(loginUrl, data = {'username' : username, 'password' : password }, headers = headers)
+        r = session.post(loginUrl, verify = False,  data = {'username' : username, 'password' : password }, headers = headers)
         return session if toJson(r)["success"] else False    
 
 def addCourse(username, password, courseId, groupNumbers):
@@ -100,4 +98,4 @@ def getFinishData(s):
         
 if __name__ == '__main__':
     #הרשמה להסתברות
-    print(addCourse('egoldshm', '058jabcc400', 120701, [1,11]))
+    print(addCourse('egoldshm', '----------', 120701, [1,11]))
