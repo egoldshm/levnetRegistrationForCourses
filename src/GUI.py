@@ -1,6 +1,18 @@
 import tkinter as tk
 import AddCourse
 
+
+###############################################################
+###                                                         ###
+###                                                         ###
+### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
+###                                                         ###
+###             All rights reserved (C)                     ###
+###                                                         ###
+###                                                         ###
+###############################################################
+
+
 def login():
 	username = usernameInput.get()
 	password = passwordInput.get()
@@ -11,11 +23,7 @@ def login():
 
 
 def main():
-	global usernameInput
-	global passwordInput
-	global idInput
-	global groupNumbersInput
-	global resultText
+	global usernameInput, passwordInput, idInput, groupNumbersInput, resultText
 	window = tk.Tk()
 	window.title('auto register for courses')
 	row = 0
