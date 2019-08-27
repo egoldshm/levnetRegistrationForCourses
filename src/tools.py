@@ -8,7 +8,9 @@ ScheduleStart = 'https://levnet.jct.ac.il/Student/Schedule/Start.aspx'
 BuildScheduleStart = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadDataForBuildScheduleStart'
 
 DebugMode = False
+StrictMode = False # If set to true, program will defualt to terminating more
 verify = False
+
 
 
 def PrintError(message):
@@ -17,11 +19,15 @@ def PrintError(message):
 def Assert(request):
     if not request.ok:
         print(request.text)
-        exit(1)
+        if StrictMode:
+            exit(1)
+        else:
+            print('^^^^ERROR in request. response is above^^^^')
     try:
         if 'error' in json.loads(request.content):
             PrintError(json.loads(request.content)['error'])
-            exit(1)
+            if StrictMode:
+                exit(1)
     except json.decoder.JSONDecodeError:
         pass
 

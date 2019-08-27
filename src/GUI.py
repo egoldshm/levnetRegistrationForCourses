@@ -60,7 +60,7 @@ def main():
 	groupNumbersInput.grid(row = row, column = 1, padx = PADDING_X, pady = PADDING_Y)
 	row += 1
 	# login
-	loginButton = tk.Button(window, text = 'Login', command = login, padx = PADDING_X, pady = PADDING_Y)
+	loginButton = tk.Button(window, text = 'Login', font = 'None 12 bold', command = login, padx = PADDING_X, pady = PADDING_Y)
 	loginButton.grid(row = row, columnspan = 2, padx = PADDING_X, pady = PADDING_Y)
 	row += 1
 
