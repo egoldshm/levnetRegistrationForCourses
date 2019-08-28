@@ -1,7 +1,7 @@
 import requests
 import json
 
-from Levnet.URL import *
+from URL import *
 
 DebugMode = False
 StrictMode = False # If set to true, program will defualt to terminating more
