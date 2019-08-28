@@ -5,7 +5,8 @@ import threading
 import time
 
 from tools import *
-from Levnet import *
+import Levnet
+from Levnet.URL import *
 
 ###############################################################
 ###                                                         ###
@@ -20,38 +21,29 @@ from Levnet import *
 
 #proxy = 'https://localhost:8080'
 
-
-def loginToLevnet(username, password):
-    '''function that try to login to levnet.jct.ac.il
-if success -> return the session, if fail -> return False'''
-    with requests.Session() as session:
-        r = session.post(loginUrl, verify = False,  data = {'username' : username, 'password' : password }, headers = headers)
-        return session if toJson(r)["success"] else False    
-
 def addCourse(username, password, courseId, groupNumbers):
-        s = loginToLevnet(username, password)
-        if s == False:
+    with Levnet.Session(username, password) as s:
+        if s.Login() == False:
             return "שם משתמש או סיסמה שגויים"
 
-        time = checkIfIsOpen(s, username, password)
+        time = s.OpenSchedule()
         if time == False:
             return "המערכת אינה פתוחה עדיין"
         
         
-        POST(s, SelectSemesterForBuildSchedule, data = time)
+        s.POST(SelectSemesterForBuildSchedule, json = time)
         
-        GET(s, CoursesNew)
+        s.GET(CoursesScheduleNew)
         
-        r = POST(s, CoursesScheduleNew, data = { 'username' : username, 'password' : password })
-        tracks = toJson(r)["tracks"]
-        for i in tracks:
-            r = POST(s, LoadCoursesForTrack, data = {"selectedTrack": i["id"]})
+        tracks = s.LoadScheduleTracks()
+        for track in tracks:
+            r = s.POST(LoadCoursesForTrack, json = {"selectedTrack": track["id"]})
         
-            id = getIdOfCourse(r,courseId)
+            ProgramId = getIdOfCourse(r,courseId)
             if id == -1:
                 continue
 
-            r = POST(s, LoadCoursesForProgram, data = {"programMemberId":id})
+            r = s.POST(LoadCoursesForProgram, json = {"programMemberId":ProgramId})
 
             idOfGroups = getIdOfGroups(r,groupNumbers)
             if idOfGroups == -1:
@@ -60,7 +52,7 @@ def addCourse(username, password, courseId, groupNumbers):
 
             print(f"Register to: {idOfGroups}")
         
-            r = POST(s, SaveGroupsSelection, data = idOfGroups)    
+            r = s.POST(SaveGroupsSelection, json = idOfGroups)    
             return "Done"
 
         return "Not Found"
@@ -69,22 +61,9 @@ def sendReportToUs(username, data):
     with requests.Session() as session:
         session.post("https://eitanbots.000webhostapp.com/levnet.php", verify=False, data = {"username": username, "meeting": str(data)})
 
-def checkIfIsOpen(s, username, password):
-    '''check if schedule is open. if open -> return semester and year that open. if not -> return false.'''
-    GET(s, ScheduleStart)
-    r = POST(s, BuildScheduleStart, data = { 'username' : username, 'password' : password })
-    whatOpen = toJson(r)["semestersScheduleCreation"]
-    if whatOpen == []:
-        return False
-        
-    year = whatOpen[0]["academicYearId"]
-    semester = whatOpen[0]["semesterId"]
-    return {"academicYear":year,"semester":semester}
-
-
 def getFinishData(s):
     ''' return טופס הערות לקורסים'''
-    r = POST(s, LoadRegWarnings, data = '')
+    r = s.POST(LoadRegWarnings, data = '')
     return toJson(r)["regWarnings"]
         
         

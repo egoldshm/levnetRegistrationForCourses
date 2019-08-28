@@ -40,6 +40,10 @@ class Session(requests.Session):
         semester = whatOpen[0]["semesterId"]
         return {"academicYear":year,"semester":semester}
 
+    def LoadScheduleTracks(self):
+        r = self.POST(CoursesScheduleNew, json = { 'username' : username, 'password' : password })
+        return toJson(r)["tracks"]
+
     def ScheduleWarnings(self):
         r = self.POST(LoadRegWarnings, json = '')
         return toJson(r)["regWarnings"]
