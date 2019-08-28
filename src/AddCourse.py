@@ -5,7 +5,7 @@ import threading
 import time
 
 import Levnet
-from URL import *
+from tools import *
 
 ###############################################################
 ###                                                         ###
@@ -30,19 +30,19 @@ def addCourse(username, password, courseId, groupNumbers):
             return "המערכת אינה פתוחה עדיין"
         
         
-        s.POST(SelectSemesterForBuildSchedule, json = time)
+        s.SelectSemesterForSchedule(time)
         
-        s.GET(CoursesScheduleNew)
+        s.CoursesSchedule()
         
         tracks = s.LoadScheduleTracks()
         for track in tracks:
-            r = s.POST(LoadCoursesForTrack, json = {"selectedTrack": track["id"]})
+            r = s.LoadTrackCourses(track)
         
             ProgramId = getIdOfCourse(r,courseId)
-            if id == -1:
+            if ProgramId == -1:
                 continue
 
-            r = s.POST(LoadCoursesForProgram, json = {"programMemberId":ProgramId})
+            r = s.LoadProgramCourses(ProgramId)
 
             idOfGroups = getIdOfGroups(r,groupNumbers)
             if idOfGroups == -1:
@@ -51,7 +51,7 @@ def addCourse(username, password, courseId, groupNumbers):
 
             print(f"Register to: {idOfGroups}")
         
-            r = s.POST(SaveGroupsSelection, json = idOfGroups)    
+            s.SelectGroups(idOfGroups)   
             return "Done"
 
         return "Not Found"

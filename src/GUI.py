@@ -20,7 +20,7 @@ ENTRY_WIDTH = 20
 def login():
 	username = usernameInput.get()
 	password = passwordInput.get()
-	courseId = idInput.get()
+	courseId = int(idInput.get())
 	groupNumbers = [int(c) for c in groupNumbersInput.get().split(', ')]
 	result = AddCourse.addCourse(username, password, courseId, groupNumbers)
 	resultText.set(result)

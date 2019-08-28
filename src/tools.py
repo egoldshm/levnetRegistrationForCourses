@@ -3,7 +3,7 @@ import json
 
 DebugMode = False
 StrictMode = False # If set to true, program will defualt to terminating more
-verify = False
+verify = True
 
 
 
@@ -46,9 +46,10 @@ def POST(session, url, data):
     debug(r.text)
     return r
 
-def getIdOfCourse(json,courseId):
+def getIdOfCourse(request ,courseId):
     '''get element of course, from number of the couse - find the ID'''
-    courseWithRightId = list(filter(lambda i: i["parentCourseNumber"] == courseId, toJson(json)["coursesForTrack"]))
+    #print(request.content)
+    courseWithRightId = list(filter(lambda i: i["parentCourseNumber"] == courseId, toJson(request)["coursesForTrack"]))
     if len(courseWithRightId) == 0:
         return -1
     return courseWithRightId[0]["programMemberId"]
