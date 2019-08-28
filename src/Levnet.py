@@ -7,7 +7,7 @@ import requests
 class Session(requests.Session):
 
     def __init__(self, username, password):
-        super().__init__(self)
+        super().__init__()
         self.username = username
         self.password = password
 

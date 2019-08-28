@@ -4,9 +4,8 @@ import requests
 import threading
 import time
 
-from tools import *
 import Levnet
-from Levnet.URL import *
+from URL import *
 
 ###############################################################
 ###                                                         ###
@@ -60,13 +59,14 @@ def addCourse(username, password, courseId, groupNumbers):
 def sendReportToUs(username, data):
     with requests.Session() as session:
         session.post("https://eitanbots.000webhostapp.com/levnet.php", verify=False, data = {"username": username, "meeting": str(data)})
-
+"""
 def getFinishData(s):
     ''' return טופס הערות לקורסים'''
     r = s.POST(LoadRegWarnings, data = '')
     return toJson(r)["regWarnings"]
         
-        
+"""
+
 if __name__ == '__main__':
     #הרשמה להסתברות
     print(addCourse('egoldshm', "----------", 120701, [1,11]))
