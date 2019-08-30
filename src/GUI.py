@@ -12,10 +12,13 @@ import AddCourse
 ###                                                         ###
 ###############################################################
 
-PADDING_X = 20
-PADDING_Y = 5
 
-ENTRY_WIDTH = 20
+padding = { 'padx' : 20, 'pady' : 5 }
+
+
+LabelStyle = { 'font' : 'None 12 bold' }
+EntryStyle = { 'width' : 20, 'font' : 'None 12', 'justify' : 'center' }
+
 
 def login():
 	username = usernameInput.get()
@@ -23,52 +26,52 @@ def login():
 	courseId = int(idInput.get())
 	groupNumbers = [int(c) for c in groupNumbersInput.get().split(', ')]
 	result = AddCourse.addCourse(username, password, courseId, groupNumbers)
-	resultText.set(result)
+
+	resultColour = 'green' if result == 'Done' else 'red'
+
+	resultLabel = tk.Label(window, text = result, fg = resultColour)
+	resultLabel.grid(row = row, columnspan = 2, **padding)
 
 def main():
-	global usernameInput, passwordInput, idInput, groupNumbersInput, resultText
+	global usernameInput, passwordInput, idInput, groupNumbersInput, row, window
 	window = tk.Tk()
 	window.title('auto register for courses')
 	row = 0
 	# username
-	usernameLabel = tk.Label(window, text = 'Username', font = 'None 12 bold', padx = PADDING_X, pady = PADDING_Y)
-	usernameLabel.grid(row = row, sticky = tk.E)
+	usernameLabel = tk.Label(window, text = 'Username', **LabelStyle)
+	usernameLabel.grid(row = row, sticky = tk.E, **padding)
 
-	usernameInput = tk.Entry(window, width = ENTRY_WIDTH, font = 'None 12', justify = 'center')
-	usernameInput.grid(row = row, column = 1, padx = PADDING_X, pady = PADDING_Y)
+	usernameInput = tk.Entry(window, **EntryStyle)
+	usernameInput.grid(row = row, column = 1, **padding)
 	row += 1
 	# password
-	passwordLabel = tk.Label(window, text = 'Password', font = 'None 12 bold', padx = PADDING_X, pady = PADDING_Y)
-	passwordLabel.grid(row = row, sticky = tk.E)
+	passwordLabel = tk.Label(window, text = 'Password', **LabelStyle)
+	passwordLabel.grid(row = row, sticky = tk.E, **padding)
 
-	passwordInput = tk.Entry(window, width = ENTRY_WIDTH, show = '•', font = 'None 12', justify = 'center')
-	passwordInput.grid(row = row, column = 1, padx = PADDING_X, pady = PADDING_Y)
+	passwordInput = tk.Entry(window, show = '•', **EntryStyle)
+	passwordInput.grid(row = row, column = 1, **padding)
 	row += 1
 	# number of courses
 	# course id
-	idLabel = tk.Label(window, text = 'Course ID', font = 'None 12 bold', padx = PADDING_X, pady = PADDING_Y)
-	idLabel.grid(row = row, sticky = tk.E)
+	idLabel = tk.Label(window, text = 'Course ID', **LabelStyle)
+	idLabel.grid(row = row, sticky = tk.E, **padding)
 
-	idInput = tk.Entry(window, width = ENTRY_WIDTH, font = 'None 12', justify = 'center')
-	idInput.grid(row = row, column = 1, padx = PADDING_X, pady = PADDING_Y)
+	idInput = tk.Entry(window, **EntryStyle)
+	idInput.grid(row = row, column = 1, **padding)
 	row += 1
 	# group numbers
-	groupNumbersLabel = tk.Label(window, text = 'Group Numbers', font = 'None 12 bold', padx = PADDING_X, pady = PADDING_Y)
-	groupNumbersLabel.grid(row = row, sticky = tk.E)
+	groupNumbersLabel = tk.Label(window, text = 'Group Numbers', **LabelStyle)
+	groupNumbersLabel.grid(row = row, sticky = tk.E, **padding)
 
-	groupNumbersInput = tk.Entry(window, width = ENTRY_WIDTH, font = 'None 12', justify = 'center')
-	groupNumbersInput.grid(row = row, column = 1, padx = PADDING_X, pady = PADDING_Y)
+	groupNumbersInput = tk.Entry(window, **EntryStyle)
+	groupNumbersInput.grid(row = row, column = 1, **padding)
 	row += 1
 	# login
-	loginButton = tk.Button(window, text = 'Login', font = 'None 12 bold', command = login, padx = PADDING_X, pady = PADDING_Y)
-	loginButton.grid(row = row, columnspan = 2, padx = PADDING_X, pady = PADDING_Y)
+	loginButton = tk.Button(window, text = 'Login', font = 'None 12 bold', command = login, **padding)
+	loginButton.grid(row = row, columnspan = 2, **padding)
 	row += 1
 
-	# result
-	resultText = tk.StringVar(value = '')
-
-	resultLabel = tk.Label(window, textvariable = resultText, padx = PADDING_X, pady = PADDING_Y, fg = 'red')
-	resultLabel.grid(row = row, columnspan = 2)
+	
 	# gui mainloop
 	window.mainloop()
 
