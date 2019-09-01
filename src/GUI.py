@@ -21,6 +21,7 @@ EntryStyle = { 'width' : 20, 'font' : 'None 12', 'justify' : 'center' }
 '''
 
 class App(tk.Tk):
+
 	def __init__(self, *args, **kwargs):
 
 		self.pages = [LoginPage, MainPage]
@@ -40,6 +41,12 @@ class App(tk.Tk):
 			self.frames[page] = frame
 			frame.grid(row = 0, column = 0, sticky = 'NSEW')
 		self.frames[page].tkraise()
+
+	def RemoveFrame(self, page):
+		if page in self.pages:
+			del self.frames[page]
+		self.ShowFrame(LoginPage)
+
 
 class LoginPage(tk.Frame):
 
@@ -73,8 +80,15 @@ class MainPage(tk.Frame):
 		super().__init__(parent)
 		self.username = username
 		self.password = password
+		self.controller = controller
+
+
+		ttk.Style().configure('MainPage.TButton', font = 'None 12 bold')
+		BackButton = ttk.Button(self, text = '<', style = 'MainPage.TButton', command = self.LogOut)
+		BackButton.grid(row = 0,pady = 10, padx = 10, sticky = 'w')
+
 		header = tk.Label(self, text = username, font = 'None 16 bold')
-		header.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'nsew')
+		header.grid(row = 0, column = 1, columnspan = 1000, pady = 10, padx = 10, sticky = 'nsew')
 
 		CourseLabel = tk.Label(self, text = 'Course ID', font = 'None 12 bold')
 		CourseLabel.grid(pady = 10, padx = 10, sticky = 'e')
@@ -89,10 +103,17 @@ class MainPage(tk.Frame):
 		GroupInput = tk.Entry(self, font = 'None 12', justify = 'center')
 		GroupInput.grid(row = 2, column = 1, pady = 10, padx = 10, sticky = 'ew')
 
-		RegisterCourse = lambda: AddCourse.addCourse(self.username, self.password, int(CourseInput.get()), [int(x) for x in GroupInput.get().split(', ')])
-		ttk.Style().configure('RegisterCourse.TButton', font = 'None 12 bold')
-		LoginButton = ttk.Button(self, text = 'Register Course', style = 'RegisterCourse.TButton', command = RegisterCourse)
-		LoginButton.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'ns')
+		click = lambda: self.RegisterCourse(int(CourseInput.get()), [int(x) for x in GroupInput.get().split(', ')])
+		RegisterButton = ttk.Button(self, text = 'Register Course', style = 'MainPage.TButton', command = click)
+		RegisterButton.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'ns')
+
+	def RegisterCourse(self, course, groups):
+		result = AddCourse.addCourse(self.username, self.password, course, groups)
+		ResultLabel = tk.Label(self, text = result, fg = 'green' if result == 'Done' else 'red')
+		ResultLabel.grid(columnspan = 1000)
+
+	def LogOut(self):
+		self.controller.RemoveFrame(self.__class__)
 
 
 def main():
