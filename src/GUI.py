@@ -105,20 +105,36 @@ class MainPage(tk.Frame):
 		GroupInput = tk.Entry(self, font = 'None 12', justify = 'center')
 		GroupInput.grid(row = 2, column = 1, pady = 10, padx = 10, sticky = 'ew')
 
-		click = lambda: self.RegisterCourse(int(CourseInput.get()), [int(x) for x in GroupInput.get().split(', ')])
-		RegisterButton = ttk.Button(self, text = 'Register Course', style = 'MainPage.TButton', command = click)
-		RegisterButton.grid(column = 1, columnspan = 2, pady = 10, padx = 10, sticky = 'nsw')
+		AddClick = lambda: self.AddCourse(CourseInput.get(), GroupInput.get().split(', '))
+		AddButton = ttk.Button(self, text = 'Add Course', style = 'MainPage.TButton', command = AddClick)
+		AddButton.grid(column = 1, columnspan = 2, pady = 10, padx = 10, sticky = 'nsw')
 
-		self.CoursesTable = ttk.Treeview(self, columns = ('#1', '#2'))
-		self.CoursesTable.heading('#0', text = 'Course')
-		self.CoursesTable.heading('#1', text = 'Lesson')
-		self.CoursesTable.heading('#2', text = 'Lab')
+		self.CoursesTable = ttk.Treeview(self, columns = ('Course', 'Lesson', 'Lab', 'Result'))
+		self.CoursesTable.heading('Course', text = 'Course')
+		self.CoursesTable.heading('Lesson', text = 'Lesson')
+		self.CoursesTable.heading('Lab', text = 'Lab')
+		self.CoursesTable.heading('Result', text = 'Result')
+		self.CoursesTable.column('Course', anchor = 'center')
+		self.CoursesTable.column('Lesson', anchor = 'center')
+		self.CoursesTable.column('Lab', anchor = 'center')
+		self.CoursesTable.column('Result', anchor = 'center')
+		self.CoursesTable.column('#0', width = 0)
 		self.CoursesTable.grid(columnspan = 3)
 
+		RegisterButton = ttk.Button(self, text = 'Register Courses', style = 'MainPage.TButton', command = self.RegisterCourses)
+		RegisterButton.grid(columnspan = 100, pady = 10, padx = 10, sticky = 'ns')
 
-	def RegisterCourse(self, course, groups):
-		self.CoursesTable.insert('', 'end', text = str(course), values = tuple([str(x) for x in groups]))
+
+
+
+	def AddCourse(self, course, groups):
+		self.CoursesTable.insert('', 'end', values = tuple([course]) + tuple(groups))
 		self.Courses.append((course, groups))
+
+	def RegisterCourses(self):
+		for course in self.Courses:
+			AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in courses[1]])
+		
 		'''
 		if self.DispRes:
 			self.ResultLabel.grid_remove()
