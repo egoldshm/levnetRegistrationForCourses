@@ -23,10 +23,10 @@ EntryStyle = { 'width' : 20, 'font' : 'None 12', 'justify' : 'center' }
 class App(tk.Tk):
 
 	def __init__(self, *args, **kwargs):
-
 		self.pages = [LoginPage, MainPage]
 
 		super().__init__(*args, **kwargs)
+		self.title('Auto Register For Courses Levnet')
 
 		self.container = tk.Frame(self)
 		self.container.pack(side = 'top', fill='both', expand = True)
@@ -81,14 +81,16 @@ class MainPage(tk.Frame):
 		self.username = username
 		self.password = password
 		self.controller = controller
+		self.Courses = []
+		self.DispRes = False
 
 
 		ttk.Style().configure('MainPage.TButton', font = 'None 12 bold')
-		BackButton = ttk.Button(self, text = '<', style = 'MainPage.TButton', command = self.LogOut)
+		BackButton = ttk.Button(self, text = 'Logout', style = 'MainPage.TButton', command = self.LogOut)
 		BackButton.grid(row = 0,pady = 10, padx = 10, sticky = 'w')
 
-		header = tk.Label(self, text = username, font = 'None 16 bold')
-		header.grid(row = 0, column = 1, columnspan = 1000, pady = 10, padx = 10, sticky = 'nsew')
+		header = tk.Label(self, text = 'Add Courses', font = 'None 16 bold')
+		header.grid(row = 0, column = 1, columnspan = 1000, pady = 10, padx = 10, sticky = 'w')
 
 		CourseLabel = tk.Label(self, text = 'Course ID', font = 'None 12 bold')
 		CourseLabel.grid(pady = 10, padx = 10, sticky = 'e')
@@ -105,15 +107,30 @@ class MainPage(tk.Frame):
 
 		click = lambda: self.RegisterCourse(int(CourseInput.get()), [int(x) for x in GroupInput.get().split(', ')])
 		RegisterButton = ttk.Button(self, text = 'Register Course', style = 'MainPage.TButton', command = click)
-		RegisterButton.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'ns')
+		RegisterButton.grid(column = 1, columnspan = 2, pady = 10, padx = 10, sticky = 'nsw')
+
+		self.CoursesTable = ttk.Treeview(self, columns = ('#1', '#2'))
+		self.CoursesTable.heading('#0', text = 'Course')
+		self.CoursesTable.heading('#1', text = 'Lesson')
+		self.CoursesTable.heading('#2', text = 'Lab')
+		self.CoursesTable.grid(columnspan = 3)
+
 
 	def RegisterCourse(self, course, groups):
+		self.CoursesTable.insert('', 'end', text = str(course), values = tuple([str(x) for x in groups]))
+		self.Courses.append((course, groups))
+		'''
+		if self.DispRes:
+			self.ResultLabel.grid_remove()
 		result = AddCourse.addCourse(self.username, self.password, course, groups)
-		ResultLabel = tk.Label(self, text = result, fg = 'green' if result == 'Done' else 'red')
-		ResultLabel.grid(columnspan = 1000)
+		self.ResultLabel = tk.Label(self, text = result, fg = 'green' if result == 'Done' else 'red')
+		self.ResultLabel.grid(columnspan = 2)
+		self.DispRes = True
+		'''
 
 	def LogOut(self):
 		self.controller.RemoveFrame(self.__class__)
+
 
 
 def main():
