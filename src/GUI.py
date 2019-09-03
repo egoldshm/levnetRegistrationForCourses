@@ -14,11 +14,9 @@ import AddCourse
 ###############################################################
 
 
-'''
-padding = { 'padx' : 20, 'pady' : 5 }
+padding = { 'padx' : 10, 'pady' : 5 }
 LabelStyle = { 'font' : 'None 12 bold' }
 EntryStyle = { 'width' : 20, 'font' : 'None 12', 'justify' : 'center' }
-'''
 
 class App(tk.Tk):
 
@@ -53,27 +51,27 @@ class LoginPage(tk.Frame):
 	def __init__(self, parent, controller):
 		super().__init__(parent)
 		header = tk.Label(self, text = 'Login', font = 'None 16 bold')
-		header.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'nsew')
+		header.grid(columnspan = 1000, **padding, sticky = 'nsew')
 
-		UsernameLabel = tk.Label(self, text = 'Username', font = 'None 12 bold')
-		UsernameLabel.grid(pady = 10, padx = 10, sticky = 'e')
+		UsernameLabel = tk.Label(self, text = 'Username', **LabelStyle)
+		UsernameLabel.grid(**padding, sticky = 'e')
 
-		UsernameInput = tk.Entry(self, font = 'None 12', justify = 'center', width = 20)
-		UsernameInput.grid(row = 1, column = 1, pady = 10, padx = 10, sticky = 'ew')
+		UsernameInput = tk.Entry(self, **EntryStyle)
+		UsernameInput.grid(row = 1, column = 1, **padding, sticky = 'ew')
 
 
-		PasswordLabel = tk.Label(self, text = 'Password', font = 'None 12 bold')
-		PasswordLabel.grid(pady = 10, padx = 10, sticky = 'e')
+		PasswordLabel = tk.Label(self, text = 'Password', **LabelStyle)
+		PasswordLabel.grid(**padding, sticky = 'e')
 
-		PasswordInput = tk.Entry(self, show = '•', font = 'None 12', justify = 'center', width = 20)
-		PasswordInput.grid(row = 2, column = 1, pady = 10, padx = 10, sticky = 'ew')
+		PasswordInput = tk.Entry(self, show = '•', **EntryStyle)
+		PasswordInput.grid(row = 2, column = 1, **padding, sticky = 'ew')
 
 
 		login = lambda: controller.ShowFrame(MainPage, username = UsernameInput.get(), password = PasswordInput.get())
-		ttk.Style().configure('Login.TButton', font = 'None 12 bold')
+		ttk.Style().configure('Login.TButton', **LabelStyle)
 		LoginButton = ttk.Button(self, text = 'Login', style = 'Login.TButton', default = 'active', command = login)
 		controller.bind('<Return>', lambda dummy: login())
-		LoginButton.grid(columnspan = 1000, pady = 10, padx = 10, sticky = 'ns')
+		LoginButton.grid(columnspan = 1000, **padding, sticky = 'ns')
 
 class MainPage(tk.Frame):
 
@@ -85,29 +83,29 @@ class MainPage(tk.Frame):
 		self.Courses = []
 
 
-		ttk.Style().configure('MainPage.TButton', font = 'None 12 bold')
+		ttk.Style().configure('MainPage.TButton', **LabelStyle)
 		BackButton = ttk.Button(self, text = 'Logout', style = 'MainPage.TButton', command = self.LogOut)
-		BackButton.grid(row = 0,pady = 10, padx = 10, sticky = 'w')
+		BackButton.grid(row = 0,**padding, sticky = 'w')
 
 		header = tk.Label(self, text = 'Add Courses', font = 'None 16 bold')
-		header.grid(row = 0, column = 1, columnspan = 1000, pady = 10, padx = 10, sticky = 'w')
+		header.grid(row = 0, column = 1, columnspan = 1000, **padding, sticky = 'w')
 
-		CourseLabel = tk.Label(self, text = 'Course ID', font = 'None 12 bold')
-		CourseLabel.grid(pady = 10, padx = 10, sticky = 'e')
+		CourseLabel = tk.Label(self, text = 'Course ID', **LabelStyle)
+		CourseLabel.grid(**padding, sticky = 'e')
 
 		self.CourseInput = tk.Entry(self, font = 'None 12', justify = 'center', width = 15)
 		self.CourseInput.focus()
-		self.CourseInput.grid(row = 1, column = 1, pady = 10, padx = 10, sticky = 'w')
+		self.CourseInput.grid(row = 1, column = 1, **padding, sticky = 'w')
 
 
-		GroupLabel = tk.Label(self, text = 'Group Numbers', font = 'None 12 bold')
-		GroupLabel.grid(pady = 10, padx = 10, sticky = 'e')
+		GroupLabel = tk.Label(self, text = 'Group Numbers', **LabelStyle)
+		GroupLabel.grid(**padding, sticky = 'e')
 
 		self.GroupInput = tk.Entry(self, font = 'None 12', justify = 'center', width = 15)
-		self.GroupInput.grid(row = 2, column = 1, pady = 10, padx = 10, sticky = 'w')
+		self.GroupInput.grid(row = 2, column = 1, **padding, sticky = 'w')
 
 		AddButton = ttk.Button(self, text = 'Add Course', style = 'MainPage.TButton', command = self.AddCourse)
-		AddButton.grid(column = 1, columnspan = 2, pady = 10, padx = 10, sticky = 'nsw')
+		AddButton.grid(column = 1, columnspan = 2, **padding, sticky = 'nsw')
 
 		TreeColumns = ['Course', 'Lesson', 'Lab', 'Result']
 		self.CoursesTable = ttk.Treeview(self, columns = tuple(TreeColumns))
@@ -121,7 +119,7 @@ class MainPage(tk.Frame):
 		self.CoursesTable.grid(columnspan = 3)
 
 		RegisterButton = ttk.Button(self, text = 'Register Courses', style = 'MainPage.TButton', command = self.RegisterCourses)
-		RegisterButton.grid(columnspan = 100, pady = 10, padx = 10, sticky = 'ns')
+		RegisterButton.grid(columnspan = 100, **padding, sticky = 'ns')
 
 
 
@@ -138,16 +136,6 @@ class MainPage(tk.Frame):
 		for course in self.Courses:
 			result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]])
 			self.CoursesTable.set(course[0], 'Result', result)
-
-		
-		'''
-		if self.DispRes:
-			self.ResultLabel.grid_remove()
-		result = AddCourse.addCourse(self.username, self.password, course, groups)
-		self.ResultLabel = tk.Label(self, text = result, fg = 'green' if result == 'Done' else 'red')
-		self.ResultLabel.grid(columnspan = 2)
-		self.DispRes = True
-		'''
 
 	def LogOut(self):
 		self.controller.RemoveFrame(self.__class__)
