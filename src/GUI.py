@@ -56,18 +56,26 @@ class LoginPage(tk.Frame):
 		UsernameLabel = tk.Label(self, text = 'Username', **LabelStyle)
 		UsernameLabel.grid(**padding, sticky = 'e')
 
-		UsernameInput = tk.Entry(self, **EntryStyle)
+		UsernameInput = ttk.Entry(self, **EntryStyle)
 		UsernameInput.grid(row = 1, column = 1, **padding, sticky = 'ew')
 
 
 		PasswordLabel = tk.Label(self, text = 'Password', **LabelStyle)
 		PasswordLabel.grid(**padding, sticky = 'e')
 
-		PasswordInput = tk.Entry(self, show = '•', **EntryStyle)
+		PasswordInput = ttk.Entry(self, show = '•', **EntryStyle)
 		PasswordInput.grid(row = 2, column = 1, **padding, sticky = 'ew')
 
+		# Rimon Checkbox
+		RimonLabel = tk.Label(self, text = 'Using Rimon', **LabelStyle)
+		RimonLabel.grid(row = 3, sticky = 'e', **padding)
 
-		login = lambda: controller.ShowFrame(MainPage, username = UsernameInput.get(), password = PasswordInput.get())
+		HasRimon = tk.BooleanVar(value = False)
+		RimonCheckbox = ttk.Checkbutton(self, onvalue = True, offvalue = False, variable = HasRimon)
+		RimonCheckbox.grid(row = 3, column = 1, sticky = 'w', **padding)
+
+
+		login = lambda: controller.ShowFrame(MainPage, UsernameInput.get(), PasswordInput.get(), HasRimon.get())
 		ttk.Style().configure('Login.TButton', **LabelStyle)
 		LoginButton = ttk.Button(self, text = 'Login', style = 'Login.TButton', default = 'active', command = login)
 		controller.bind('<Return>', lambda dummy: login())
@@ -75,10 +83,11 @@ class LoginPage(tk.Frame):
 
 class MainPage(tk.Frame):
 
-	def __init__(self, parent, controller, *args, username = '', password = '', **kwargs):
+	def __init__(self, parent, controller, username, password, Rimon, *args, **kwargs):
 		super().__init__(parent)
 		self.username = username
 		self.password = password
+		self.Rimon = Rimon
 		self.controller = controller
 		self.Courses = []
 
@@ -134,7 +143,7 @@ class MainPage(tk.Frame):
 
 	def RegisterCourses(self):
 		for course in self.Courses:
-			result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]])
+			result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
 			self.CoursesTable.set(course[0], 'Result', result)
 
 	def LogOut(self):

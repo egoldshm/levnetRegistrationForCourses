@@ -31,7 +31,7 @@ def debug(message):
 
 def toJson(x):
     return json.loads(x.content)
-
+"""
 def GET(session, url):
     '''send GET request to url and do few checks'''
     r = session.get(url, headers = headers, verify = verify)
@@ -45,6 +45,7 @@ def POST(session, url, data):
     Assert(r)
     debug(r.text)
     return r
+"""
 
 def getIdOfCourse(request ,courseId):
     '''get element of course, from number of the couse - find the ID'''

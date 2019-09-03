@@ -1,24 +1,36 @@
-from tools import *
-from URL import *
+#from tools import *
+from tools import Assert, debug, toJson
 
 import requests
 
+headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
+loginUrl = 'https://levnet.jct.ac.il/api/home/login.ashx?action=TryLogin'
+ScheduleStart = 'https://levnet.jct.ac.il/Student/Schedule/Start.aspx'
+BuildScheduleStart = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadDataForBuildScheduleStart'
+SelectSemesterForBuildSchedule = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=SelectSemesterForBuildSchedule'
+CoursesScheduleNew = 'https://levnet.jct.ac.il/Student/Schedule/CoursesScheduleNew.aspx'
+LoadScheduleData = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadData'
+LoadCoursesForTrack = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadCoursesForTrack'
+LoadCoursesForProgram = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadCoursesForProgram'
+SaveGroupsSelection = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=SaveGroupsSelection'
+LoadRegWarnings = 'https://levnet.jct.ac.il/api/student/RegWarningsForCourses.ashx?action=LoadRegWarnings'
 
 class Session(requests.Session):
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, verify):
         super().__init__()
         self.username = username
         self.password = password
+        self.verify = verify
 
     def GET(self, url):
-        r = self.get(url, headers = headers, verify = verify)
+        r = self.get(url, headers = headers, verify = self.verify)
         Assert(r)
         debug(r.text)
         return r
 
     def POST(self, url, json):
-        r = self.post(url, json = json, headers = headers, verify = verify)
+        r = self.post(url, json = json, headers = headers, verify = self.verify)
         Assert(r)
         debug(r.text)
         return r

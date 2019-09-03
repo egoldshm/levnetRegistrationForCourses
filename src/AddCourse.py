@@ -5,7 +5,8 @@ import threading
 import time
 
 import Levnet
-from tools import *
+
+from tools import getIdOfCourse, getIdOfGroups
 
 ###############################################################
 ###                                                         ###
@@ -20,8 +21,8 @@ from tools import *
 
 #proxy = 'https://localhost:8080'
 
-def addCourse(username, password, courseId, groupNumbers):
-    with Levnet.Session(username, password) as s:
+def addCourse(username, password, courseId, groupNumbers, hasRimon):
+    with Levnet.Session(username, password, not hasRimon) as s:
         if s.Login() == False:
             return "שם משתמש או סיסמה שגויים"
 
@@ -69,4 +70,4 @@ def getFinishData(s):
 
 if __name__ == '__main__':
     #הרשמה להסתברות
-    print(addCourse('egoldshm', "----------", 120701, [1,11]))
+    print(addCourse('egoldshm', "----------", 120701, [1,11], False))
