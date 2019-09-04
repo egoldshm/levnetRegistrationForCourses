@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import Levnet
 import AddCourse
 
 
@@ -50,6 +51,8 @@ class LoginPage(tk.Frame):
 
 	def __init__(self, parent, controller):
 		super().__init__(parent)
+		self.Error = tk.Label(self, fg = 'red', **EntryStyle)
+		
 		header = tk.Label(self, text = 'Login', font = 'None 16 bold')
 		header.grid(columnspan = 1000, **padding, sticky = 'nsew')
 
@@ -74,12 +77,25 @@ class LoginPage(tk.Frame):
 		RimonCheckbox = ttk.Checkbutton(self, onvalue = True, offvalue = False, variable = HasRimon)
 		RimonCheckbox.grid(row = 3, column = 1, sticky = 'w', **padding)
 
-
-		login = lambda: controller.ShowFrame(MainPage, UsernameInput.get(), PasswordInput.get(), HasRimon.get())
+		
+		login = lambda: self.LoginClick(controller, UsernameInput, PasswordInput, HasRimon.get())
 		ttk.Style().configure('Login.TButton', **LabelStyle)
 		LoginButton = ttk.Button(self, text = 'Login', style = 'Login.TButton', default = 'active', command = login)
 		controller.bind('<Return>', lambda dummy: login())
 		LoginButton.grid(columnspan = 1000, **padding, sticky = 'ns')
+	
+	def LoginClick(self, controller, UsernameInput, PasswordInput, HasRimon):
+		username = UsernameInput.get()
+		password = PasswordInput.get()
+		with Levnet.Session(username, password, not HasRimon) as s:
+			success = s.Login()
+		if success:
+			controller.ShowFrame(MainPage, username, password, HasRimon)
+		else:
+			self.Error['text'] = "שם משתמש או סיסמה שגויים"
+			self.Error.grid(columnspan = 100, **padding)
+			UsernameInput.delete(0, 'end')
+			PasswordInput.delete(0, 'end')
 
 class MainPage(tk.Frame):
 
