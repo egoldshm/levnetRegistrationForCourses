@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import Levnet
 import AddCourse
+from Logo import logo
 
 
 ###############################################################
@@ -26,7 +27,7 @@ class App(tk.Tk):
 
 		super().__init__(*args, **kwargs)
 		self.title('Auto Register For Courses Levnet')
-
+		self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(data = logo))
 		self.container = tk.Frame(self)
 		self.container.pack(side = 'top', fill='both', expand = True)
 		self.frames = {}
