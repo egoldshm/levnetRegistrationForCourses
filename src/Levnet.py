@@ -14,6 +14,7 @@ LoadCoursesForTrack = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?a
 LoadCoursesForProgram = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=LoadCoursesForProgram'
 SaveGroupsSelection = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=SaveGroupsSelection'
 LoadRegWarnings = 'https://levnet.jct.ac.il/api/student/RegWarningsForCourses.ashx?action=LoadRegWarnings'
+ActualCourse = 'https://levnet.jct.ac.il/api/common/actualCourses.ashx?action=LoadActualCourses'
 
 class Session(requests.Session):
 
@@ -75,3 +76,12 @@ class Session(requests.Session):
     def ScheduleWarnings(self):
         r = self.POST(LoadRegWarnings, json = '')
         return toJson(r)["regWarnings"]
+    
+    def FindCourseName(self, year, semester, id):
+        result = self.POST(ActualCourse, json = {"selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":None,"selectedCategory":None,"freeSearch":None})
+        totalPages = toJson(result)["totalPages"] 
+        for num in range(1,totalPages + 1):
+            result = self.POST(ActualCourse, json = {"current": num, "selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":None,"selectedCategory":None,"freeSearch":None})
+            for i in toJson(result)["items"]:
+                if i["courseFullNumber"].split(".")[0] == str(i):
+                    return i["courseName"]
