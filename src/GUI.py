@@ -71,11 +71,8 @@ class LoginPage(tk.Frame):
 		PasswordInput.grid(row = 2, column = 1, **padding, sticky = 'ew')
 
 		# Rimon Checkbox
-		RimonLabel = tk.Label(self, text = 'Using Rimon', **LabelStyle)
-		RimonLabel.grid(row = 3, sticky = 'e', **padding)
-
 		HasRimon = tk.BooleanVar(value = False)
-		RimonCheckbox = ttk.Checkbutton(self, onvalue = True, offvalue = False, variable = HasRimon)
+		RimonCheckbox = ttk.Checkbutton(self, text = 'Using Rimon', onvalue = True, offvalue = False, variable = HasRimon)
 		RimonCheckbox.grid(row = 3, column = 1, sticky = 'w', **padding)
 
 		
