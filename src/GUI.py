@@ -69,6 +69,7 @@ class LoginPage(tk.Frame):
 		UsernameLabel.grid(**padding, sticky = 'e')
 
 		UsernameInput = ttk.Entry(self, **EntryStyle)
+		UsernameInput.focus()
 		UsernameInput.grid(row = 1, column = 1, **padding, sticky = 'ew')
 
 
