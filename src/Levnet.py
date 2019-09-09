@@ -79,9 +79,8 @@ class Session(requests.Session):
     
     def FindCourseName(self, year, semester, id):
         result = self.POST(ActualCourse, json = {"selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":None,"selectedCategory":None,"freeSearch":None})
-        totalPages = toJson(result)["totalPages"] 
-        for num in range(1,totalPages + 1):
-            result = self.POST(ActualCourse, json = {"current": num, "selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":None,"selectedCategory":None,"freeSearch":None})
-            for i in toJson(result)["items"]:
-                if i["courseFullNumber"].split(".")[0] == str(i):
-                    return i["courseName"]
+        for page in range(toJson(result)["totalPages"]):
+            result = self.POST(ActualCourse, json = {"current": page + 1, "selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":None,"selectedCategory":None,"freeSearch":None})
+            for item in toJson(result)["items"]:
+                if item["courseFullNumber"].split(".")[0] == str(id):
+                    return item["courseName"]

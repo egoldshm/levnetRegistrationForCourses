@@ -18,7 +18,7 @@ from Logo import logo
 
 padding = { 'padx' : 10, 'pady' : 5 }
 #LabelStyle = { 'font' : 'None 12 bold' }
-EntryStyle = { 'width' : 20, 'font' : 'None 12', 'justify' : 'center' }
+EntryStyle = { 'width' : 18, 'font' : 'None 12', 'justify' : 'center' }
 
 class App(tk.Tk):
 
