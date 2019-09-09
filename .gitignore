@@ -3,3 +3,4 @@ src/__pycache__
 src/Levnet/__pycache__
 build/dist
 build/build
+build/GUI.spec
