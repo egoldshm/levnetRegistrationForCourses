@@ -17,7 +17,8 @@ from Logo import logo
 
 
 padding = { 'padx' : 10, 'pady' : 5 }
-#LabelStyle = { 'font' : 'None 12 bold' }
+
+# There is a bug in tkinter that TEntry doesn't work in ttk.Style().configure
 EntryStyle = { 'width' : 18, 'font' : 'None 12', 'justify' : 'center' }
 
 class App(tk.Tk):
@@ -32,6 +33,7 @@ class App(tk.Tk):
 		self.style = ttk.Style()
 		self.style.configure('TButton', font = 'None 12 bold')
 		self.style.configure('TLabel', font = 'None 12 bold')
+		self.style.configure('TCheckbutton', font = 'None 10 bold')
 
 		
 		self.container = tk.Frame(self)
