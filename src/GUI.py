@@ -18,6 +18,8 @@ from Logo import logo
 
 padding = { 'padx' : 10, 'pady' : 5 }
 
+colour = 'purple'
+
 # There is a bug in tkinter that TEntry doesn't work in ttk.Style().configure
 EntryStyle = { 'width' : 18, 'font' : 'None 12', 'justify' : 'center' }
 
@@ -31,12 +33,14 @@ class App(tk.Tk):
 		self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(data = logo))
 
 		self.style = ttk.Style()
-		self.style.configure('TButton', font = 'None 12 bold')
-		self.style.configure('TLabel', font = 'None 12 bold')
-		self.style.configure('TCheckbutton', font = 'None 10 bold')
+		self.style.configure('TFrame', background = colour)
+		self.style.configure('Treeview', background = colour)
+		self.style.configure('TButton', font = 'None 12 bold', background = colour)
+		self.style.configure('TLabel', font = 'None 12 bold', background = colour)
+		self.style.configure('TCheckbutton', font = 'None 10 bold', background = colour)
 
 		
-		self.container = tk.Frame(self)
+		self.container = ttk.Frame(self)
 		self.container.pack(side = 'top', fill='both', expand = True)
 		self.frames = {}
 		self.ShowFrame(LoginPage)
@@ -56,7 +60,7 @@ class App(tk.Tk):
 		self.ShowFrame(LoginPage)
 
 
-class LoginPage(tk.Frame):
+class LoginPage(ttk.Frame):
 
 	def __init__(self, parent, controller):
 		super().__init__(parent)
@@ -103,7 +107,7 @@ class LoginPage(tk.Frame):
 			UsernameInput.delete(0, 'end')
 			PasswordInput.delete(0, 'end')
 
-class MainPage(tk.Frame):
+class MainPage(ttk.Frame):
 
 	def __init__(self, parent, controller, username, password, Rimon, *args, **kwargs):
 		super().__init__(parent)
