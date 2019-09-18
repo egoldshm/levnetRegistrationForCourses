@@ -6,7 +6,6 @@ from Logo import logo
 import time
 from datetime import datetime
 import StoppableThreading
-import threading
 
 ###############################################################
 ###                                                         ###
