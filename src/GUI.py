@@ -189,10 +189,14 @@ class MainPage(ttk.Frame):
 		def Register():
 			with Levnet.Session(self.username, self.password, not self.Rimon) as s:
 				s.Login()
-				while s.OpenSchedule() == False and not threading.currentThread().stopped():
+				while s.OpenSchedule() == False and not StoppableThreading.currentThread().stopped():
 					Now = str(datetime.now()).split('.')[0]
 					self.ResultLabel['text'] = f'Last checked if schedule opened: {Now}'
 					time.sleep(10.0)
+			
+			if StoppableThreading.currentThread().stopped():
+				return
+
 			for course in self.Courses:
 				result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
 				self.CoursesTable.set(course[0], 'Result', result)

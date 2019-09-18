@@ -13,3 +13,6 @@ class Thread(threading.Thread):
 
     def stopped(self):
         return self._stop_event.is_set()
+
+def currentThread():
+    return threading.currentThread()
