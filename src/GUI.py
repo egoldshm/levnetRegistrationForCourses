@@ -3,7 +3,10 @@ from tkinter import ttk
 import Levnet
 import AddCourse
 from Logo import logo
-
+import time
+from datetime import datetime
+import StoppableThreading
+import threading
 
 ###############################################################
 ###                                                         ###
@@ -58,6 +61,14 @@ class App(tk.Tk):
 		if page in self.pages:
 			del self.frames[page]
 		self.ShowFrame(LoginPage)
+	
+	def destroy(self):
+		try:
+			self.frames[MainPage].RegisterThread.stop()
+			self.frames[MainPage].RegisterThread.join()
+		except:
+			pass
+		return super().destroy()
 
 
 class LoginPage(ttk.Frame):
@@ -155,9 +166,10 @@ class MainPage(ttk.Frame):
 		self.CoursesTable.column('#0', width = 0)
 		self.CoursesTable.grid(columnspan = 3)
 
-		RegisterButton = ttk.Button(self, text = 'Register Courses', style = 'MainPage.TButton', command = self.RegisterCourses)
-		RegisterButton.grid(columnspan = 100, **padding, sticky = 'ns')
+		self.RegisterButton = ttk.Button(self, text = 'Register Courses', style = 'MainPage.TButton', command = self.RegisterCourses)
+		self.RegisterButton.grid(columnspan = 100, **padding, sticky = 'ns')
 
+		self.ResultLabel = ttk.Label(self, foreground = 'red')
 
 
 
@@ -173,9 +185,28 @@ class MainPage(ttk.Frame):
 		self.GroupInput.delete(0, 'end')
 
 	def RegisterCourses(self):
-		for course in self.Courses:
-			result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
-			self.CoursesTable.set(course[0], 'Result', result)
+		self.ResultLabel.grid(columnspan = 10, **padding)
+		def Register():
+			with Levnet.Session(self.username, self.password, not self.Rimon) as s:
+				s.Login()
+				while s.OpenSchedule() == False and not threading.currentThread().stopped():
+					Now = str(datetime.now()).split('.')[0]
+					self.ResultLabel['text'] = f'Last checked if schedule opened: {Now}'
+					time.sleep(10.0)
+			for course in self.Courses:
+				result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
+				self.CoursesTable.set(course[0], 'Result', result)
+		self.RegisterThread = StoppableThreading.Thread(target = Register)
+		self.RegisterThread.start()
+		
+		self.RegisterButton['text'] = 'Cancel'
+		self.RegisterButton['command'] = self.Cancel
+
+	def Cancel(self):
+		self.RegisterThread.stop()
+		
+		self.RegisterButton['text'] = 'Register Courses'
+		self.RegisterButton['command'] = self.RegisterCourses
 
 	def LogOut(self):
 		self.controller.RemoveFrame(self.__class__)
