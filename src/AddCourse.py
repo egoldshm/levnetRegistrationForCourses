@@ -13,7 +13,7 @@ from tools import getIdOfCourse, getIdOfGroups
 ###                                                         ###
 ### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
 ###                                                         ###
-###             All rights reserved (C)                     ###
+###               All rights reserved (C)                   ###
 ###                                                         ###
 ###                                                         ###
 ###############################################################

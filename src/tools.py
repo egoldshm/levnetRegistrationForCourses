@@ -1,6 +1,16 @@
 import requests
 import json
 
+###############################################################
+###                                                         ###
+###                                                         ###
+### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
+###                                                         ###
+###               All rights reserved (C)                   ###
+###                                                         ###
+###                                                         ###
+###############################################################
+
 DebugMode = False
 StrictMode = False # If set to true, program will defualt to terminating more
 verify = True

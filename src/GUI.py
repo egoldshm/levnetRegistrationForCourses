@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import Levnet
 import AddCourse
+from requests import exceptions as requests_exceptions
 from Logo import logo
 import time
 from datetime import datetime
@@ -12,7 +13,7 @@ import StoppableThreading
 ###                                                         ###
 ### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
 ###                                                         ###
-###             All rights reserved (C)                     ###
+###               All rights reserved (C)                   ###
 ###                                                         ###
 ###                                                         ###
 ###############################################################
@@ -74,7 +75,7 @@ class LoginPage(ttk.Frame):
 
 	def __init__(self, parent, controller):
 		super().__init__(parent)
-		self.Error = tk.Label(self, fg = 'red', **EntryStyle)
+		self.Error = ttk.Label(self, foreground = 'red', font = 'None 12')
 		
 		header = ttk.Label(self, text = 'Login', font = 'None 16 bold')
 		header.grid(columnspan = 1000, **padding, sticky = 'n')
@@ -100,20 +101,25 @@ class LoginPage(ttk.Frame):
 
 		
 		login = lambda: self.LoginClick(controller, UsernameInput, PasswordInput, HasRimon.get())
-		LoginButton = ttk.Button(self, text = 'Login', default = 'active', command = login)
-		controller.bind('<Return>', lambda dummy: login())
+		LoginThreaded = lambda: StoppableThreading.Thread(target = login).start()
+		LoginButton = ttk.Button(self, text = 'Login', default = 'active', command = LoginThreaded)
+		controller.bind('<Return>', lambda dummy: LoginButton.invoke())
 		LoginButton.grid(columnspan = 1000, **padding, sticky = 'ns')
 	
 	def LoginClick(self, controller, UsernameInput, PasswordInput, HasRimon):
+		self.Error.grid(columnspan = 100, **padding)
 		username = UsernameInput.get()
 		password = PasswordInput.get()
 		with Levnet.Session(username, password, not HasRimon) as s:
-			success = s.Login()
+			try:
+				success = s.Login()
+			except requests_exceptions.SSLError:
+				self.Error['text'] = 'וודא שבחרת באפשרות הנכונה לגבי רימון'
+				return
 		if success:
 			controller.ShowFrame(MainPage, username, password, HasRimon)
 		else:
 			self.Error['text'] = "שם משתמש או סיסמה שגויים"
-			self.Error.grid(columnspan = 100, **padding)
 			UsernameInput.delete(0, 'end')
 			PasswordInput.delete(0, 'end')
 
@@ -127,7 +133,13 @@ class MainPage(ttk.Frame):
 		self.controller = controller
 		self.Courses = []
 		self.year = 5780
-		self.semester = 1
+		self.semester = 2
+
+		if 'semester' in kwargs:
+			self.semester = kwargs['semester']
+		
+		if 'year' in kwargs:
+			self.year = kwargs['year']
 
 
 		ttk.Style().configure('MainPage.TButton')
@@ -188,13 +200,13 @@ class MainPage(ttk.Frame):
 		def Register():
 			with Levnet.Session(self.username, self.password, not self.Rimon) as s:
 				s.Login()
-				while s.OpenSchedule() == False and not StoppableThreading.currentThread().stopped():
+				while s.OpenSchedule() == False:
 					Now = str(datetime.now()).split('.')[0]
 					self.ResultLabel['text'] = f'Last checked if schedule opened: {Now}'
-					time.sleep(10.0)
-			
-			if StoppableThreading.currentThread().stopped():
-				return
+					for _ in range(10):
+						if StoppableThreading.currentThread().stopped():
+							return
+						time.sleep(1.0)
 
 			for course in self.Courses:
 				result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
@@ -207,7 +219,6 @@ class MainPage(ttk.Frame):
 
 	def Cancel(self):
 		self.RegisterThread.stop()
-		
 		self.RegisterButton['text'] = 'Register Courses'
 		self.RegisterButton['command'] = self.RegisterCourses
 

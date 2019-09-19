@@ -3,6 +3,16 @@ from tools import Assert, debug, toJson
 
 import requests
 
+###############################################################
+###                                                         ###
+###                                                         ###
+### This Code Written By Ariel Darshan And Eytan Goldshmidt ###
+###                                                         ###
+###               All rights reserved (C)                   ###
+###                                                         ###
+###                                                         ###
+###############################################################
+
 headers = {'Host' : 'levnet.jct.ac.il', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0'}
 loginUrl = 'https://levnet.jct.ac.il/api/home/login.ashx?action=TryLogin'
 ScheduleStart = 'https://levnet.jct.ac.il/Student/Schedule/Start.aspx'
