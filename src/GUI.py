@@ -21,7 +21,7 @@ import StoppableThreading
 
 padding = { 'padx' : 10, 'pady' : 5 }
 
-colour = 'purple'
+colour = '#0d77ae'
 
 # There is a bug in tkinter that TEntry doesn't work in ttk.Style().configure
 EntryStyle = { 'width' : 18, 'font' : 'None 12', 'justify' : 'center' }
@@ -101,8 +101,7 @@ class LoginPage(ttk.Frame):
 
 		
 		login = lambda: self.LoginClick(controller, UsernameInput, PasswordInput, HasRimon.get())
-		LoginThreaded = lambda: StoppableThreading.Thread(target = login).start()
-		LoginButton = ttk.Button(self, text = 'Login', default = 'active', command = LoginThreaded)
+		LoginButton = ttk.Button(self, text = 'Login', default = 'active', command = login)
 		controller.bind('<Return>', lambda dummy: LoginButton.invoke())
 		LoginButton.grid(columnspan = 1000, **padding, sticky = 'ns')
 	
@@ -114,7 +113,7 @@ class LoginPage(ttk.Frame):
 			try:
 				success = s.Login()
 			except requests_exceptions.SSLError:
-				self.Error['text'] = 'וודא שבחרת באפשרות הנכונה לגבי רימון'
+				self.Error['text'] = 'ודא שבחרת באפשרות הנכונה לגבי רימון'
 				return
 		if success:
 			controller.ShowFrame(MainPage, username, password, HasRimon)
@@ -131,7 +130,7 @@ class MainPage(ttk.Frame):
 		self.password = password
 		self.Rimon = Rimon
 		self.controller = controller
-		self.Courses = []
+		self.Courses = [(110102, [1])]
 		self.year = 5780
 		self.semester = 2
 
