@@ -185,7 +185,7 @@ class MainPage(ttk.Frame):
 
 	def AddCourse(self):
 		course = self.CourseInput.get()
-		groups = self.GroupInput.get(). split(', ')
+		groups = self.GroupInput.get().replace(',', ' ').split()
 		with Levnet.Session(self.username, self.password, not self.Rimon) as s:
 			s.Login()
 			courseName = s.FindCourseName(self.year, self.semester, course)
