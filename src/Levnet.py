@@ -106,5 +106,5 @@ class Session(requests.Session):
                     result2 = toJson(result2)
                     groups2 = list(filter(lambda i: str(int(i["groupFullNumber"].split(".")[3])) in list(map(str,groups)),result2["groups"]))
                     if(len(groups2) == len(groups)):
-                        return list(map(lambda j: j["courseGroupLecturers"] + ". " + j["courseGroupMeetings"], groups2))
+                        return ",".join(list(map(lambda j: j["courseGroupLecturers"] + ":" + j["courseGroupMeetings"], groups2)))
         return None
