@@ -25,6 +25,7 @@ LoadCoursesForProgram = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx
 SaveGroupsSelection = 'https://levnet.jct.ac.il/api/student/buildSchedule.ashx?action=SaveGroupsSelection'
 LoadRegWarnings = 'https://levnet.jct.ac.il/api/student/RegWarningsForCourses.ashx?action=LoadRegWarnings'
 ActualCourse = 'https://levnet.jct.ac.il/api/common/actualCourses.ashx?action=LoadActualCourses'
+LoadCourseDetails = 'https://mazak.jct.ac.il/api/common/actualCourses.ashx?action=LoadActualCourse&ActualCourseID='
 
 class Session(requests.Session):
 
@@ -94,3 +95,16 @@ class Session(requests.Session):
             for item in toJson(result)["items"]:
                 if item["courseFullNumber"].split(".")[0] == str(id):
                     return item["courseName"]
+
+    def FindLecturersAndTimes(self, year, semester, id, groups):
+        result = self.POST(ActualCourse, json = {"selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":1,"selectedCategory":None,"freeSearch":None})
+        for page in range(toJson(result)["totalPages"]):
+            result = self.POST(ActualCourse, json = {"current": page + 1, "selectedAcademicYear":year,"selectedSemester":semester,"selectedExtension":1,"selectedCategory":None,"freeSearch":None})
+            for item in toJson(result)["items"]:
+                if item["courseFullNumber"].split(".")[0] == str(id):
+                    result2 = self.POST(LoadCourseDetails + str(item["id"]),None)
+                    result2 = toJson(result2)
+                    groups2 = list(filter(lambda i: str(int(i["groupFullNumber"].split(".")[3])) in list(map(str,groups)),result2["groups"]))
+                    if(len(groups2) == len(groups)):
+                        return list(map(lambda j: j["courseGroupLecturers"] + ". " + j["courseGroupMeetings"], groups2))
+        return None
