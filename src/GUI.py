@@ -165,7 +165,7 @@ class MainPage(ttk.Frame):
 		AddButton = ttk.Button(self, text = 'Add Course', style = 'MainPage.TButton', command = self.AddCourse)
 		AddButton.grid(column = 1, columnspan = 2, **padding, sticky = 'nsw')
 
-		TreeColumns = ['Course', 'Lesson', 'Lab', 'info', 'Result']
+		TreeColumns = ['Course', 'Lesson', 'Lab', 'Result']
 		self.CoursesTable = ttk.Treeview(self, columns = tuple(TreeColumns))
 
 		for column in TreeColumns:
@@ -189,8 +189,9 @@ class MainPage(ttk.Frame):
 		with Levnet.Session(self.username, self.password, not self.Rimon) as s:
 			s.Login()
 			courseName = s.FindCourseName(self.year, self.semester, course)
-			detail = s.FindLecturersAndTimes(self.year, self.semester,course,groups)
-		self.CoursesTable.insert('', 'end', course, values = tuple([courseName]) + tuple(groups) + tuple([detail]))
+			detail = s.FindLecturersAndTimes(self.year, self.semester, course, groups)
+			detail = [f"{lecturer.split('.')[0]} - {group}" for lecturer, group in zip(detail, groups)]
+		self.CoursesTable.insert('', 'end', course, values = tuple([courseName]) + tuple(detail))
 		self.Courses.append((course, groups))
 		self.CourseInput.delete(0, 'end')
 		self.GroupInput.delete(0, 'end')
