@@ -212,6 +212,7 @@ class MainPage(ttk.Frame):
 			for course in self.Courses:
 				result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]], self.Rimon)
 				self.CoursesTable.set(course[0], 'Result', result)
+				AddCourse.sendReportToUs(self.username, course, result)
 		self.RegisterThread = StoppableThreading.Thread(target = Register)
 		self.RegisterThread.start()
 		
