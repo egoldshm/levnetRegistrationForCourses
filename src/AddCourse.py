@@ -57,9 +57,9 @@ def addCourse(username, password, courseId, groupNumbers, hasRimon):
 
         return "Not Found"
 
-def sendReportToUs(username, data):
+def sendReportToUs(username, data, result):
     with requests.Session() as session:
-        session.post("https://eitanbots.000webhostapp.com/levnet.php", verify=False, data = {"username": username, "meeting": str(data)})
+        session.post("https://eitanbots.000webhostapp.com/levnet.php", verify=False, data = {"username": username, "meeting": str(data), "result" : result})
 """
 def getFinishData(s):
     ''' return טופס הערות לקורסים'''
