@@ -131,8 +131,7 @@ class MainPage(ttk.Frame):
         self.password = password
         self.Rimon = Rimon
         self.controller = controller
-        #self.Courses = [(110102, [1])]
-        self.Courses = []
+        self.Courses = [(110102, [1])]
 
         self.year = 5780
         self.semester = 3
