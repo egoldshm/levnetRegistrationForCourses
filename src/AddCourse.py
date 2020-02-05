@@ -84,4 +84,4 @@ def getFinishData(s):
 
 if __name__ == '__main__':
     # הרשמה להסתברות
-    print(addCourse('-----', "----------", 120701, [1, 11], False))
+    print(addCourse('egoldshm', "----------", 120701, [1, 11], False))
