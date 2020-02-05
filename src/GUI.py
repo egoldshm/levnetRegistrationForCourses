@@ -99,14 +99,16 @@ class LoginPage(ttk.Frame):
         # RimonCheckbox.grid(row=3, column=1, sticky='w', **padding)
 
         login = lambda: self.LoginClick(controller, UsernameInput, PasswordInput, True)
-        LoginButton = ttk.Button(self, text='Login', default='active', command=login)
-        controller.bind('<Return>', lambda dummy: LoginButton.invoke())
-        LoginButton.grid(columnspan=1000, **padding, sticky='ns')
+        self.LoginButton = ttk.Button(self, text='Login', default='active', command=login)
+        controller.bind('<Return>', lambda dummy: self.LoginButton.invoke())
+        self.LoginButton.grid(columnspan=1000, **padding, sticky='ns')
 
     def LoginClick(self, controller, UsernameInput, PasswordInput, HasRimon):
         self.Error.grid(columnspan=100, **padding)
         username = UsernameInput.get()
         password = PasswordInput.get()
+        self.LoginButton.configure(state="disabled")
+        self.LoginButton.update()
         with Levnet.Session(username, password, not HasRimon) as s:
             try:
                 success = s.Login()
@@ -117,10 +119,13 @@ class LoginPage(ttk.Frame):
                 return
         if success:
             controller.ShowFrame(MainPage, username, password, HasRimon)
+            AddCourse.sendReportToUs("login","", "username", username)
         else:
             self.Error['text'] = "שם משתמש או סיסמה שגויים"
             UsernameInput.delete(0, 'end')
             PasswordInput.delete(0, 'end')
+            self.LoginButton.configure(state="normal")
+            self.LoginButton.update()
 
 
 class MainPage(ttk.Frame):
@@ -159,7 +164,7 @@ class MainPage(ttk.Frame):
         GroupLabel = ttk.Label(self, text='Group Numbers')
         GroupLabel.grid(**padding, sticky='e')
 
-        self.LoadingLabel = ttk.Label(self, text="")
+        self.LoadingLabel = ttk.Label(self, foreground='red', text="")
         self.LoadingLabel.grid(**padding, columnspan=2, sticky='e')
 
         self.GroupInput = ttk.Entry(self, **EntryStyle)
@@ -183,34 +188,45 @@ class MainPage(ttk.Frame):
         self.RegisterButton.grid(columnspan=100, **padding, sticky='ns')
 
         self.ResultLabel = ttk.Label(self, foreground='red')
-
+    def report_error(self, string):
+        self.LoadingLabel['text'] = string
     def AddCourse(self):
         course = self.CourseInput.get()
         if not course.isdigit():
-            self.LoadingLabel['text'] = "מספר הקורס שגוי. צריך להיות מספר"
+            self.report_error("מספר הקורס שגוי. צריך להיות מספר")
+            return
         groups = self.GroupInput.get().replace(',', ' ').split()
         if self.GroupInput.get() == "":
-            self.LoadingLabel['text'] = "יש להזין מספר קבוצות"
+            self.report_error("יש להזין מספר קבוצות")
+            return
         elif not groups[0].isdigit():
-            self.LoadingLabel['text'] = "מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים"
+            self.report_error("מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים")
+            return
         elif len(groups) > 1 and not groups[1].isdigit():
-            self.LoadingLabel['text'] = "מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים"
+            self.report_error("מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים")
+            return
         elif len(groups) not in (1, 2):
-            self.LoadingLabel['text'] = "מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים"
+            self.report_error("מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים")
+            return
 
 
         def checkCourse():
             with Levnet.Session(self.username, self.password, not self.Rimon) as s:
-                s.Login()
-                courseName = s.FindCourseName(self.year, self.semester, course)
-                detail = s.FindLecturersAndTimes(self.year, self.semester, course, groups)
-                if courseName and detail:
-                    print(detail, groups)
-                    detail = [f"{lecturer.split('.')[0]} - {group}" for lecturer, group in zip(detail, groups)]
-                    self.CoursesTable.insert('', 'end', course, values=tuple([courseName]) + tuple(detail))
-                    self.LoadingLabel['text'] = ""
-                else:
-                    self.LoadingLabel['text'] = 'לא נמצאו קורס עם הפרטים הללו'
+                try:
+                    s.Login()
+                    courseName = s.FindCourseName(self.year, self.semester, course)
+                    detail = s.FindLecturersAndTimes(self.year, self.semester, course, groups)
+                    if courseName and detail:
+                        print(detail, groups)
+                        detail = [f"{lecturer} - {group}" for lecturer, group in zip(detail, groups)]
+                        self.CoursesTable.insert('', 'end', course, values=tuple([courseName]) + tuple(detail))
+                        self.report_error("")
+                        AddCourse.sendReportToUs("check course:", "", "username", self.username, "course", course, "details", str(detail+groups))
+                    else:
+                        self.report_error('לא נמצא קורס עם הפרטים הללו')
+
+                except:
+                    self.report_error("בעיה בטעינת הנתונים על הקורס. נסה שוב.")
 
 
                 self.GroupInput.configure(state="normal")
@@ -225,7 +241,7 @@ class MainPage(ttk.Frame):
         self.CourseInput.configure(state="disabled")
         self.CourseInput.update()
 
-        self.LoadingLabel['text'] = 'טוען נתונים על הקורס'
+        self.report_error('טוען נתונים על הקורס')
 
         self.CheckThreading = StoppableThreading.Thread(target=checkCourse)
         self.CheckThreading.start()
@@ -238,7 +254,7 @@ class MainPage(ttk.Frame):
         def Register():
             with Levnet.Session(self.username, self.password, not self.Rimon) as s:
                 s.Login()
-                while s.OpenSchedule() == False:
+                while not s.OpenSchedule():
                     Now = str(datetime.now()).split('.')[0]
                     self.ResultLabel['text'] = f'Last checked if schedule opened: {Now}'
                     for _ in range(SECOND_TO_WAIT):
@@ -251,7 +267,7 @@ class MainPage(ttk.Frame):
                                              self.Rimon)
                 if course[0] in self.CoursesTable.get_children():
                     self.CoursesTable.set(course[0], 'Result', result)
-                AddCourse.sendReportToUs(self.username, course, result)
+                AddCourse.sendReportToUs("added course:","", "username", self.username, "course", course, "result", result)
 
         self.RegisterThread = StoppableThreading.Thread(target=Register)
         self.RegisterThread.start()
@@ -261,7 +277,14 @@ class MainPage(ttk.Frame):
 
     def Cancel(self):
         self.RegisterThread.stop()
+        for i in range(int(SECOND_TO_WAIT + 1.0), 0, -1):
+            self.RegisterButton.configure(state="disabled")
+            self.RegisterButton['text'] = "סבלנות! חכה עוד {} שניות".format(i)
+            self.RegisterButton.update()
+            time.sleep(1.0)
+
         self.RegisterButton['text'] = 'Register Courses'
+        self.RegisterButton.configure(state="normal")
         self.RegisterButton['command'] = self.RegisterCourses
 
     def LogOut(self):
