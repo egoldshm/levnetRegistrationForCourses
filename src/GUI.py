@@ -19,12 +19,12 @@ import StoppableThreading
 ###############################################################
 
 
-padding = {'padx': 10, 'pady': 5}
+padding = {'padx': 10, 'pady': 20}
 
-colour = '#0d77ae'
+colour = '#b7d9eb'
 SECOND_TO_WAIT = 10
 # There is a bug in tkinter that TEntry doesn't work in ttk.Style().configure
-EntryStyle = {'width': 18, 'font': 'None 12', 'justify': 'center'}
+EntryStyle = {'width': 18, 'font': 'Gisha 12', 'justify': 'center'}
 
 
 class App(tk.Tk):
@@ -39,9 +39,9 @@ class App(tk.Tk):
         self.style = ttk.Style()
         self.style.configure('TFrame', background=colour)
         self.style.configure('Treeview', background=colour)
-        self.style.configure('TButton', font='None 12 bold', background=colour)
-        self.style.configure('TLabel', font='None 12 bold', background=colour)
-        self.style.configure('TCheckbutton', font='None 10 bold', background=colour)
+        self.style.configure('TButton', font='Gisha 12 bold', background=colour)
+        self.style.configure('TLabel', font='Gisha 12 bold', background=colour)
+        self.style.configure('TCheckbutton', font='Gisha 10 bold', background=colour)
 
         self.container = ttk.Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
@@ -93,6 +93,14 @@ class LoginPage(ttk.Frame):
         PasswordInput = ttk.Entry(self, show='•', **EntryStyle)
         PasswordInput.grid(row=2, column=1, **padding, sticky='ew')
 
+        CreditLabel = ttk.Label(self, foreground = '#003300', justify="center", font='None 8 bold', text=""" 
+        שימו לב - המערכת לא עובדת ב-100% 
+        כדאי להיות מוכנים ולוודא בלב-נט שהכל עבד כנדרש
+        !אין להפיץ ללא אישור
+        😉בלחיצה על הכפתור אתה מאשר את תנאי השימוש
+        !סמסטר נפלא""")
+        CreditLabel.grid(columnspan=1000, sticky='WENS')
+
         # Rimon Checkbox
         # HasRimon = tk.BooleanVar(value=False)
         # RimonCheckbox = ttk.Checkbutton(self, text='Using Rimon', onvalue=True, offvalue=False, variable=HasRimon)
@@ -119,7 +127,11 @@ class LoginPage(ttk.Frame):
                 return
         if success:
             controller.ShowFrame(MainPage, username, password, HasRimon)
-            AddCourse.sendReportToUs("login","", "username", username)
+
+            self.LoginButton.configure(state="normal")
+            self.LoginButton.update()
+            PasswordInput.delete(0, 'end')
+            AddCourse.sendReportToUs("login", "", "username", username)
         else:
             self.Error['text'] = "שם משתמש או סיסמה שגויים"
             UsernameInput.delete(0, 'end')
@@ -164,7 +176,7 @@ class MainPage(ttk.Frame):
         GroupLabel = ttk.Label(self, text='Group Numbers')
         GroupLabel.grid(**padding, sticky='e')
 
-        self.LoadingLabel = ttk.Label(self, foreground='red', text="")
+        self.LoadingLabel = ttk.Label(self, foreground='red', text="", justify = "center")
         self.LoadingLabel.grid(**padding, columnspan=2, sticky='e')
 
         self.GroupInput = ttk.Entry(self, **EntryStyle)
@@ -188,8 +200,10 @@ class MainPage(ttk.Frame):
         self.RegisterButton.grid(columnspan=100, **padding, sticky='ns')
 
         self.ResultLabel = ttk.Label(self, foreground='red')
+
     def report_error(self, string):
         self.LoadingLabel['text'] = string
+
     def AddCourse(self):
         course = self.CourseInput.get()
         if not course.isdigit():
@@ -209,7 +223,6 @@ class MainPage(ttk.Frame):
             self.report_error("מספר הקבוצות שגוי. צריך להיות מספר אחד או שניים מופרדים בפסיקים או רווחים")
             return
 
-
         def checkCourse():
             with Levnet.Session(self.username, self.password, not self.Rimon) as s:
                 try:
@@ -221,13 +234,13 @@ class MainPage(ttk.Frame):
                         detail = [f"{lecturer} - {group}" for lecturer, group in zip(detail, groups)]
                         self.CoursesTable.insert('', 'end', course, values=tuple([courseName]) + tuple(detail))
                         self.report_error("")
-                        AddCourse.sendReportToUs("check course:", "", "username", self.username, "course", course, "details", str(detail+groups))
+                        AddCourse.sendReportToUs("check course", "", "username", self.username, "course", course,
+                                                 "details", str(detail + groups))
                     else:
                         self.report_error('לא נמצא קורס עם הפרטים הללו')
 
                 except:
                     self.report_error("בעיה בטעינת הנתונים על הקורס. נסה שוב.")
-
 
                 self.GroupInput.configure(state="normal")
                 self.GroupInput.update()
@@ -261,13 +274,13 @@ class MainPage(ttk.Frame):
                         if StoppableThreading.currentThread().stopped():
                             return
                         time.sleep(1.0)
-
             for course in self.Courses:
                 result = AddCourse.addCourse(self.username, self.password, int(course[0]), [int(x) for x in course[1]],
                                              self.Rimon)
                 if course[0] in self.CoursesTable.get_children():
                     self.CoursesTable.set(course[0], 'Result', result)
-                AddCourse.sendReportToUs("added course:","", "username", self.username, "course", course, "result", result)
+                AddCourse.sendReportToUs("added course", "", "username", self.username, "course", str(course[0]) + str(course[1]), "result",
+                                         result)
 
         self.RegisterThread = StoppableThreading.Thread(target=Register)
         self.RegisterThread.start()
