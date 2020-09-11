@@ -1,0 +1,2 @@
+SEMESTER = 2
+YEAR = 5781

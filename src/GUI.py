@@ -17,7 +17,7 @@ import StoppableThreading
 ###                                                         ###
 ###                                                         ###
 ###############################################################
-
+from src.config import YEAR, SEMESTER
 
 padding = {'padx': 10, 'pady': 20}
 
@@ -150,8 +150,8 @@ class MainPage(ttk.Frame):
         self.controller = controller
         self.Courses = [(110102, [1])]
 
-        self.year = 5780
-        self.semester = 3
+        self.year = YEAR
+        self.semester = SEMESTER
 
         if 'semester' in kwargs:
             self.semester = kwargs['semester']
